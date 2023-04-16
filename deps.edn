@@ -1,0 +1,4 @@
+{
+ :paths ["src" "resources"],
+ :deps { seancorfield/next.jdbc {:mvn/version "1.2.659"}
+         org.xerial/sqlite-jdbc {:mvn/version "3.41.2.1"}}}

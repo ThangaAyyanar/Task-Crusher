@@ -3,12 +3,18 @@
             [next.jdbc.result-set :as rs]
             [clojure.java.io :as io]))
 
+(def taskLimit 2)
 ;; Specs
 (def db-spec {:dbtype "sqlite"
               :dbname (io/resource "sample.db")
               :builder-fn rs/as-unqualified-lower-maps ;; remove table name from result
               })
 (def ds (jdbc/get-datasource db-spec))
+
+;; Utils
+
+(defn current-date []
+  (new java.util.Date))
 
 ;; Table Creation Scripts
 
@@ -45,7 +51,7 @@
   ;; {:uuid "some uuid" :description "Hello world" :entry datetime :status pending :project Inbox}
   (let [uuid (java.util.UUID/randomUUID)
         description (:description args "hello")
-        entry (:entry args (new java.util.Date))
+        entry (:entry args (current-date))
         status (:status args "pending")
         priority (:priority args 1)
         project (:project args "Inbox")]
@@ -54,16 +60,58 @@
                        uuid description entry status priority project]))
   )
 
+(defn update-task-description [uuid description]
+  (jdbc/execute! ds ["UPDATE tasks SET description = ?, modified = ? WHERE uuid = ?" description (current-date) uuid]))
+
+(defn update-task-status [uuid status]
+  (jdbc/execute! ds ["UPDATE tasks SET status = ?, modified = ? WHERE uuid = ?" status (current-date) uuid]))
+
+(defn update-task-priority [uuid priority]
+  (jdbc/execute! ds ["UPDATE tasks SET priority = ?, modified = ? WHERE uuid = ?" priority (current-date) uuid]))
+
+(defn update-task-project [uuid project]
+  (jdbc/execute! ds ["UPDATE tasks SET project = ?, modified = ? WHERE uuid = ?" project (current-date) uuid]))
+
+(defn update-task [args]
+  ;; Sample args will be like this
+  ;; {:uuid "some uuid" :description "Hello world" :entry datetime :status pending :project Inbox}
+
+  (if (empty? (:uuid args))
+    (println "Need UUID to update the task")
+    (let [uuid (:uuid args)]
+        (cond
+            (:description args) (update-task-description uuid (:description args))
+            (:status args) (update-task-status uuid (:status args))
+            (:prioriy args) (update-task-priority uuid (:priority args))
+            (:project args) (update-task-project uuid (:project args))
+            ))))
+
+ 
 (defn select-all-tasks
-  ([] (select-all-tasks 2))
+  ([] (select-all-tasks taskLimit))
   ([limit]
     (jdbc/execute! ds ["SELECT * FROM tasks LIMIT ?" limit])))
+
+(defn delete-task-by-id [id]
+  (println (str "Deleting " id "from the table task"))
+  (jdbc/execute! ds ["DELETE FROM tasks WHERE id = ?" id]))
+
+(defn delete-task [args]
+  (cond
+    (:id args) (delete-task-by-id (:id args))
+    :else (println "Not a valid argument")))
+
 
 (defn -main [& args]
   (create-task-related-tables)
   )
 
 (comment
+
+  (update-task {:uuid "076e3ab1-6403-45e2-8c12-93aeac462325"
+                :description "Clean up the code for task table"})
+
+  (delete-task {:id 1})
 
   (insert-task {:description "insert item for task crusader in clojure"})
   (println (select-all-tasks))

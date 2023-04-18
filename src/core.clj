@@ -96,9 +96,14 @@
   (println (str "Deleting " id "from the table task"))
   (jdbc/execute! ds ["DELETE FROM tasks WHERE id = ?" id]))
 
+(defn delete-task-by-uuid [uuid]
+  (println (str "Deleting " uuid "from the table task"))
+  (jdbc/execute! ds ["DELETE FROM tasks WHERE uuid = ?" uuid]))
+
 (defn delete-task [args]
   (cond
     (:id args) (delete-task-by-id (:id args))
+    (:uuid args) (delete-task-by-id (:uuid args))
     :else (println "Not a valid argument")))
 
 

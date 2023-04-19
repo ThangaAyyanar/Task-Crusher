@@ -1,6 +1,7 @@
 
 (ns cmdTest
-  (:require [clojure.tools.cli :refer [parse-opts]]))
+  (:require [clojure.tools.cli :refer [parse-opts]]
+            [clojure.main :as main]))
 
 
 ;; command line args
@@ -37,10 +38,22 @@
   (println msg)
   (System/exit status))
 
+
+(def repl-options
+  [:prompt #(printf "Enter the task to perform: ")
+   :read   (fn [request-prompt request-exit]
+             (println (read-line)))
+             ;; (or ({:line-start request-prompt :stream-end request-exit}
+             ;;      (main/skip-whitespace *in*))
+             ;;      (re-find #"^(\d+)([\+\-\*\/])(\d+)$" (read-line))))
+   :eval   (fn [args]
+             (println "dummy println"))])
+
 (defn -main [& args]
   ;;(create-task-related-tables)
-  (println args)
-  (println (parse-opts args cli-options))
+  ;; (println args)
+  ;; (println (parse-opts args cli-options))
+  (apply main/repl repl-options)
   )
 
 (comment

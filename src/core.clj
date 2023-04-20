@@ -1,6 +1,7 @@
 (ns core
   (:require [next.jdbc :as jdbc]
             [next.jdbc.result-set :as rs]
+            [clojure.string :as string]
             [clojure.java.io :as io]))
 
 (def taskLimit 2)
@@ -9,6 +10,7 @@
               :dbname (io/resource "sample.db")
               :builder-fn rs/as-unqualified-lower-maps ;; remove table name from result
               })
+
 (def ds (jdbc/get-datasource db-spec))
 
 ;; Utils
@@ -90,7 +92,11 @@
 (defn select-all-tasks
   ([] (select-all-tasks taskLimit))
   ([limit]
-    (jdbc/execute! ds ["SELECT * FROM tasks LIMIT ?" limit])))
+    (jdbc/execute! ds ["SELECT * FROM tasks LIMIT ?" limit] {:builder-fn rs/as-unqualified-lower-maps ;; remove table name from result
+              })))
+
+(defn pretty-print-tasks []
+  (println (map #(str (:description %) "\n") (select-all-tasks))))
 
 (defn delete-task-by-id [id]
   (println (str "Deleting " id "from the table task"))
@@ -108,8 +114,11 @@
 
 
 (defn -main [& args]
-  (create-task-related-tables)
-  )
+  ;;(create-task-related-tables)
+  (cond
+    (= "add" (first args)) (print (rest args))
+    (= "list" (first args)) (print (pretty-print-tasks))
+    :else (print "Invalid argument")))
 
 (comment
 

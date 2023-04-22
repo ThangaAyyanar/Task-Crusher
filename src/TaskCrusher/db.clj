@@ -1,24 +1,19 @@
-(ns core
+(ns TaskCrusher.db
   (:require [next.jdbc :as jdbc]
             [next.jdbc.result-set :as rs]
-            [clojure.string :as string]
             [clojure.java.io :as io]))
 
+;; Constant
 (def taskLimit 2)
+
 ;; Specs
 (def db-spec {:dbtype "sqlite"
-              :dbname (io/resource "sample.db")
-              :builder-fn rs/as-unqualified-lower-maps ;; remove table name from result
-              })
-
+              :dbname (io/resource "sample.db")})
 (def ds (jdbc/get-datasource db-spec))
 
 ;; Utils
-
 (defn current-date []
   (new java.util.Date))
-
-;; Table Creation Scripts
 
 (defn create-task-related-tables []
 
@@ -47,6 +42,7 @@
             task INTEGER,
             FOREIGN KEY (task) REFERENCES tasks(id)
         )"]))
+
 
 (defn insert-task [args]
   ;; Sample args will be like this
@@ -95,9 +91,6 @@
     (jdbc/execute! ds ["SELECT * FROM tasks LIMIT ?" limit] {:builder-fn rs/as-unqualified-lower-maps ;; remove table name from result
               })))
 
-(defn pretty-print-tasks []
-  (println (map #(str (:description %) "\n") (select-all-tasks))))
-
 (defn delete-task-by-id [id]
   (println (str "Deleting " id "from the table task"))
   (jdbc/execute! ds ["DELETE FROM tasks WHERE id = ?" id]))
@@ -112,13 +105,6 @@
     (:uuid args) (delete-task-by-id (:uuid args))
     :else (println "Not a valid argument")))
 
-
-(defn -main [& args]
-  ;;(create-task-related-tables)
-  (cond
-    (= "add" (first args)) (print (rest args))
-    (= "list" (first args)) (print (pretty-print-tasks))
-    :else (print "Invalid argument")))
 
 (comment
 

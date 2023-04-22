@@ -8,14 +8,20 @@
        (map #(:description %))
        (run! println)))
 
+(defn insert-task [args]
+  (let [str_args (string/join args)]
+    (println "Inserting the task" str_args)
+    (db/insert-task {:description str_args})))
+
 (defn -main [& args]
-  ;;(create-task-related-tables)
+  ;;(db/create-task-related-tables)
   (cond
-    (= "add" (first args)) (print (rest args))
+    (= "add" (first args)) (insert-task (rest args))
     (= "list" (first args)) (print (pretty-print-tasks))
     :else (print "Invalid argument")))
 
 
 (comment
   (def tasks (db/select-all-tasks))
+  (insert-task "hello")
   )

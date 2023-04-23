@@ -1,2 +1,2 @@
 # Task-Crusher
-task warrior inspired task management system in clojure
+Task warrior inspired(or you can call as clone :D) task management system in clojure

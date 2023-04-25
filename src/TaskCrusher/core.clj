@@ -23,13 +23,19 @@
     (println "Deleting the task" args)
     (db/delete-task-by-id id)))
 
+(defn update-task [args]
+  (let [id (Integer/parseInt (first args))
+        str_args (string/join (rest args))]
+    (db/update-task {:id id
+                     :description str_args})))
+
 (defn -main [& args]
   ;;(db/create-task-related-tables)
   (cond
     (= "add" (first args)) (insert-task (rest args))
     (= "list" (first args)) (print (pretty-print-tasks))
     (= "delete" (first args)) (delete-task (rest args))
-    (= "update" (first args)) (print (pretty-print-tasks))
+    (= "update" (first args)) (update-task (rest args))
     :else (print "Invalid argument")))
 
 

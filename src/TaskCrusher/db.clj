@@ -58,25 +58,27 @@
                        uuid description entry status priority project]))
   )
 
-(defn update-task-description [uuid description]
-  (jdbc/execute! ds ["UPDATE tasks SET description = ?, modified = ? WHERE uuid = ?" description (current-date) uuid]))
+(defn update-task-description [id description]
+  (println id)
+  (println description)
+  (println (jdbc/execute! ds ["UPDATE tasks SET description = ?, modified = ? WHERE id = ?" description (current-date) id])))
 
-(defn update-task-status [uuid status]
-  (jdbc/execute! ds ["UPDATE tasks SET status = ?, modified = ? WHERE uuid = ?" status (current-date) uuid]))
+(defn update-task-status [id status]
+  (jdbc/execute! ds ["UPDATE tasks SET status = ?, modified = ? WHERE id = ?" status (current-date) id]))
 
-(defn update-task-priority [uuid priority]
-  (jdbc/execute! ds ["UPDATE tasks SET priority = ?, modified = ? WHERE uuid = ?" priority (current-date) uuid]))
+(defn update-task-priority [id priority]
+  (jdbc/execute! ds ["UPDATE tasks SET priority = ?, modified = ? WHERE id = ?" priority (current-date) id]))
 
-(defn update-task-project [uuid project]
-  (jdbc/execute! ds ["UPDATE tasks SET project = ?, modified = ? WHERE uuid = ?" project (current-date) uuid]))
+(defn update-task-project [id project]
+  (jdbc/execute! ds ["UPDATE tasks SET project = ?, modified = ? WHERE id = ?" project (current-date) id]))
 
 (defn update-task [args]
   ;; Sample args will be like this
   ;; {:uuid "some uuid" :description "Hello world" :entry datetime :status pending :project Inbox}
 
-  (if (empty? (:uuid args))
-    (println "Need UUID to update the task")
-    (let [uuid (:uuid args)]
+  (if (nil? (:id args))
+    (println "Need ID to update the task")
+    (let [uuid (:id args)]
         (cond
             (:description args) (update-task-description uuid (:description args))
             (:status args) (update-task-status uuid (:status args))

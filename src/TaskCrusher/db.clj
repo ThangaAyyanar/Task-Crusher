@@ -104,7 +104,7 @@
 (defn delete-task [args]
   (cond
     (:id args) (delete-task-by-id (:id args))
-    (:uuid args) (delete-task-by-id (:uuid args))
+    (:uuid args) (delete-task-by-uuid (:uuid args))
     :else (println "Not a valid argument")))
 
 

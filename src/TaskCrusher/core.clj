@@ -1,12 +1,17 @@
 (ns TaskCrusher.core
-  (:require [TaskCrusher.db :as db]
-            [clojure.string :as string]))
+  (:require
+   [clojure.pprint :as pp]
+   [clojure.string :as string]
+   [TaskCrusher.db :as db]))
 
 
 (defn pretty-print-tasks []
-  (->> (db/select-all-tasks)
-       (map #(:description %))
-       (run! println)))
+  (pp/print-table (->> (db/select-all-tasks)
+                       (map #(select-keys % [:id
+                                             :description
+                                             :project
+                                             :status
+                                             :tags])))))
 
 (defn insert-task [args]
   (let [str_args (string/join args)]
